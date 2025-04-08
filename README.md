@@ -1,107 +1,107 @@
-# Documentação do Script de Processamento e Verificação de Hostnames
+# Hostname Processing and Verification Script Documentation
 
-Este script é projetado para processar um arquivo de hostnames, verificar o status dos IPs associados a esses hostnames, realizar uma pesquisa reversa e verificar se os IPs correspondem à sub-rede, além de exportar os resultados para um arquivo CSV.
+This script is designed to process a hostname file, check the status of IPs associated with those hostnames, perform reverse lookup, verify if IPs belong to the correct subnet, and export the results to a CSV file.
 
-Ele faz uso de **asyncio** para processar múltiplos hostnames de maneira assíncrona e eficiente, **socket** para resolução de IPs e lookup reverso, e **aiohttp** para realizar operações de rede de forma não bloqueante.
+It uses **asyncio** for asynchronous and efficient processing of multiple hostnames, **socket** for IP resolution and reverse lookup, and **aiohttp** for non-blocking network operations.
 
-## Funcionalidades
+## Features
 
-1. **Resolução de Hostnames para IPs**:
-   - Através da função `get_ip_from_hostname()`, o script resolve o endereço IP de um hostname fornecido.
+1. **Hostname to IP Resolution**:
+   - The `get_ip_from_hostname()` function resolves the IP address of a given hostname.
 
-2. **Verificação de Status do IP**:
-   - A função `check_status()` utiliza o comando `ping` para verificar se o IP está "Online" ou "Offline".
+2. **IP Status Check**:
+   - The `check_status()` function uses the `ping` command to check whether an IP is "Online" or "Offline".
 
-3. **Pesquisa Reversa de IP**:
-   - O script realiza um lookup reverso usando a função `reverse_lookup()` para verificar se o IP resolve para um hostname correspondente.
+3. **IP Reverse Lookup**:
+   - The script performs a reverse lookup using the `reverse_lookup()` function to verify if the IP resolves to a matching hostname.
 
-4. **Verificação de Sub-rede**:
-   - Se o hostname e o IP resolvido não corresponderem ao esperado, o script verifica a sub-rede para encontrar outros IPs associados à mesma rede e os valida.
+4. **Subnet Verification**:
+   - If the hostname and resolved IP do not match as expected, the script scans the subnet to find other associated IPs and validates them.
 
-5. **Exportação para CSV**:
-   - O script exporta os resultados de cada hostname e seu IP associado para um arquivo CSV utilizando a função `export_results_to_csv()`.
+5. **CSV Export**:
+   - The script exports the results for each hostname and its associated IP to a CSV file using the `export_results_to_csv()` function.
 
-6. **Exibição de Resultados**:
-   - Os resultados são apresentados na tela de forma tabulada utilizando a biblioteca `tabulate`, com informações sobre o hostname, IP resolvido, status e sub-rede verificada.
+6. **Results Display**:
+   - Results are displayed in a tabulated format using the `tabulate` library, showing hostname, resolved IP, status, and subnet verification.
 
-7. **Concorrência Dinâmica**:
-   - A concorrência é ajustada dinamicamente para garantir o uso eficiente dos recursos do sistema, com um número de tarefas simultâneas limitadas pela carga do sistema.
+7. **Dynamic Concurrency**:
+   - Concurrency is dynamically adjusted to ensure efficient use of system resources, limiting the number of simultaneous tasks based on system load.
 
-## Estrutura do Código
+## Code Structure
 
-### 1. Funções Assíncronas
+### 1. Asynchronous Functions
 
-- **`get_ip_from_hostname()`**: Resolve o hostname para o IP.
-- **`reverse_lookup()`**: Realiza um lookup reverso de um IP.
-- **`check_status()`**: Verifica se o IP está online.
-- **`scan_subnet()`**: Verifica outros IPs na sub-rede.
-- **`check_ip()`**: Verifica cada IP individualmente, incluindo a validação de sub-rede.
+- **`get_ip_from_hostname()`**: Resolves hostname to IP.
+- **`reverse_lookup()`**: Performs a reverse lookup of an IP.
+- **`check_status()`**: Checks if an IP is online.
+- **`scan_subnet()`**: Scans other IPs in the subnet.
+- **`check_ip()`**: Verifies each IP, including subnet validation.
 
-### 2. Função para Exportação
+### 2. Export Function
 
-- **`export_results_to_csv()`**: Exporta os resultados coletados para um arquivo CSV.
+- **`export_results_to_csv()`**: Exports the collected results to a CSV file.
 
-### 3. Função Principal `process_hostnames()`
+### 3. Main Function `process_hostnames()`
 
 ```python
 async def process_hostnames(input_file_path, export_file_name):
 ```
 
-- Processa uma lista de hostnames a partir de um arquivo de texto.
-- Verifica o IP de cada hostname e executa a verificação reversa.
-- Verifica a sub-rede caso o IP resolvido não corresponda ao esperado.
-- Exibe e exporta os resultados para um arquivo CSV.
+- Processes a list of hostnames from a text file.
+- Resolves the IP of each hostname and performs reverse lookup.
+- Scans the subnet if the resolved IP does not match expectations.
+- Displays and exports results to a CSV file.
 
-### 4. Função para Processar Hostnames Individualmente
+### 4. Individual Hostname Processing Function
 
 ```python
 async def process_hostname(hostname, results, semaphore):
 ```
 
-- Resolve cada hostname e verifica o status do IP.
-- Se a pesquisa reversa não corresponder ao hostname, verifica a sub-rede.
+- Resolves each hostname and checks IP status.
+- If the reverse lookup does not match, scans the subnet.
 
-### 5. Execução Assíncrona
+### 5. Asynchronous Execution
 
 ```python
 asyncio.run(process_hostnames(input_file_path, export_file_name))
 ```
 
-Inicia a execução do script, solicitando o caminho do arquivo de hostnames e o nome do arquivo de exportação para os resultados.
+Starts script execution, requesting the hostname file path and export file name for the results.
 
-## Detalhamento de Funções
+## Function Details
 
 ### `get_ip_from_hostname()`
 
-Resolve o endereço IP de um hostname fornecido. Se não for possível resolver o IP, a função retorna `None`.
+Resolves the IP address of a given hostname. Returns `None` if resolution fails.
 
 ### `reverse_lookup()`
 
-Realiza um lookup reverso para encontrar o nome associado ao IP.
+Performs a reverse lookup to find the name associated with the IP.
 
 ### `check_status()`
 
-Verifica o status do IP utilizando o comando `ping`. Se o IP estiver acessível, retorna "Online", caso contrário, retorna "Offline".
+Checks IP status using the `ping` command. Returns "Online" if reachable, otherwise "Offline".
 
 ### `scan_subnet()`
 
-Verifica todos os IPs dentro de uma sub-rede (exceto o IP já verificado) e os valida para corresponder ao hostname fornecido.
+Scans all IPs within a subnet (excluding the already verified IP) and validates them to match the given hostname.
 
 ### `get_dynamic_semaphore()`
 
-Determina a quantidade dinâmica de tarefas simultâneas, ajustando com base no número de núcleos da CPU para evitar sobrecarregar o sistema.
+Dynamically determines the number of concurrent tasks based on CPU cores to avoid overloading the system.
 
 ### `export_results_to_csv()`
 
-Exporte os resultados para um arquivo CSV com as colunas: `Hostname`, `IP Resolvido`, `Status`, `Verificado na Subrede`.
+Exports results to a CSV file with columns: `Hostname`, `Resolved IP`, `Status`, `Checked in Subnet`.
 
 ### `process_hostnames()`
 
-Processa o arquivo de hostnames, resolve os IPs, verifica o status e exporta os resultados para CSV. Ele também exibe as informações em um formato tabulado na tela.
+Processes the hostname file, resolves IPs, checks status, and exports results to CSV. Also displays data in a tabulated format on screen.
 
-## Exemplo de Entrada
+## Input Example
 
-O script espera um arquivo de texto contendo um hostname por linha. Exemplo de conteúdo do arquivo `hostnames.txt`:
+The script expects a text file with one hostname per line. Example content of `hostnames.txt`:
 
 ```
 example.com
@@ -109,22 +109,22 @@ testhost.local
 server1.mydomain.com
 ```
 
-## Exemplo de Saída no CSV
+## Example Output in CSV
 
-O arquivo `resultado_hostnames.csv` gerado pelo script terá o seguinte formato:
+The generated `resultado_hostnames.csv` will have the following format:
 
-| Hostname            | IP Resolvido | Status  | Verificado na Subrede |
-|---------------------|--------------|---------|-----------------------|
-| example.com         | 93.184.216.34| Online  | Não                   |
-| testhost.local      | 192.168.1.100| Offline | Não                   |
-| server1.mydomain.com| 10.0.0.1     | Online  | Sim                   |
+| Hostname            | Resolved IP     | Status  | Checked in Subnet |
+|---------------------|------------------|---------|--------------------|
+| example.com         | 93.184.216.34    | Online  | No                 |
+| testhost.local      | 192.168.1.100    | Offline | No                 |
+| server1.mydomain.com| 10.0.0.1         | Online  | Yes                |
 
-## Possíveis Melhorias
+## Possible Improvements
 
-- **Erro de Resolução**: Melhorar a gestão de erros na resolução de IPs para garantir que os hostnames não resolvidos sejam devidamente documentados.
-- **Tempo de Espera do Ping**: Aumentar o tempo de espera no `ping` se necessário, dependendo da latência da rede.
-- **Suporte para IPv6**: Adicionar suporte para IPv6, caso seja necessário para o ambiente da rede.
+- **Resolution Error Handling**: Improve IP resolution error management to ensure unresolved hostnames are properly logged.
+- **Ping Timeout**: Adjust ping timeout as needed, depending on network latency.
+- **IPv6 Support**: Add IPv6 support if required by the network environment.
 
-## Conclusão
+## Conclusion
 
-Este script é uma ferramenta eficiente para gerenciar e verificar hostnames em uma rede, com funcionalidades de resolução de IPs, pesquisa reversa e verificação de status. Ele também facilita a exportação dos resultados para um formato CSV, o que pode ser útil para análise e relatórios.
+This script is an efficient tool for managing and verifying hostnames in a network, with features for IP resolution, reverse lookup, and status checking. It also facilitates CSV export of results, which is useful for analysis and reporting.
